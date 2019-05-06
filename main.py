@@ -16,6 +16,9 @@ def make_bold(a):
     a = make_normal(a)
     return r"\textbf{" + a + "}"
 
+def cn(cut):
+    return {"25": r"\#1", "45": r"\#2"}[cut]
+
 
 settings = [
     {"cut": "25", "horizon": 50},
@@ -39,9 +42,15 @@ for setting in settings:
     CUT = setting["cut"]
     PATH = "data/data{}csv.csv".format(CUT)
 
-
+    # get and rename channels
     data = pd.read_csv(PATH)
-    channels = [_ for _ in data.keys()if "TM" in _ and not "TM45LD" in _]
+    orig_channels = [_ for _ in data.keys()if "TM" in _ and not "TM45LD" in _]
+    channels = []
+    for idx, ch in enumerate(orig_channels):
+        ch_name = "CH" + str(idx)
+        data[ch_name] = data[ch]
+        channels.append(ch_name)
+
 
     # normalization
     z_score_params = {}
@@ -198,7 +207,7 @@ for setting in settings:
     print("\n"*1)
     print(r"""
     \begin{table}[H]
-    \caption{The detail results for engine cut """ + str(CUT) +  r""" and prediction horizon of """ + str(horizon) + r""" samples. The best result in every channel is highlighted in bold. The MAE is in degrees Celsius.}
+    \caption{The detail results for for engine temperature field """ + cn(str(CUT)) +  r""" and prediction horizon of """ + str(horizon) + r""" samples. The best result in every channel is highlighted in bold. The MAE is in degrees Celsius.}
     \centering
     \label{tab:results""" + str(CUT) + "_" + str(horizon) + r"""}
     \begin{tabular}{c|cc|cc|cc|c}
